@@ -1,8 +1,9 @@
-import { Button, Result, Space, Spin } from "antd";
+import { Button, Flex, Result, Space, Spin } from "antd";
 import { EntryCard, entryStore } from "entities/entry";
-import { addEntry, updateEntry } from "features";
+import { addEntry, LanguageToggle, updateEntry } from "features";
 import { observer } from "mobx-react-lite";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Status } from "shared";
 
 export const ListPage = observer(() => {
@@ -16,6 +17,8 @@ export const ListPage = observer(() => {
             isRefreshRequired,
         },
     } = entryStore;
+
+    const { t } = useTranslation();
 
     useEffect(() => {
         if (entryList.length === 0 || isRefreshRequired) {
@@ -50,69 +53,76 @@ export const ListPage = observer(() => {
     };
 
     return (
-        <Space
-            direction="horizontal"
-            align="start"
-            style={{
-                width: "100vw",
-                display: "flex",
-                justifyContent: "center",
-                padding: "24px",
-            }}
-        >
-            {isLoading ? (
-                <Spin />
-            ) : (
-                <>
-                    {["new", "inwork", "completed"].map((x, i) => {
-                        return (
-                            <Space
-                                direction="vertical"
-                                align="center"
-                                style={{ width: "250px" }}
-                                key={i}
-                                onDragEnter={() =>
-                                    (draggedOverRef.current = x as Status)
-                                }
-                            >
-                                <h2>
-                                    {x.charAt(0).toUpperCase() + x.slice(1)}
-                                </h2>
+        <>
+            <Space
+                direction="horizontal"
+                align="start"
+                style={{
+                    width: "100vw",
+                    display: "flex",
+                    justifyContent: "center",
+                    padding: "24px",
+                }}
+            >
+                {isLoading ? (
+                    <Spin />
+                ) : (
+                    <>
+                        {["new", "inwork", "completed"].map((x, i) => {
+                            return (
                                 <Space
                                     direction="vertical"
                                     align="center"
-                                    style={{
-                                        border: "1px solid black",
-                                        padding: "12px",
-                                        borderRadius: "8px",
-                                    }}
+                                    style={{ width: "250px" }}
+                                    key={i}
+                                    onDragEnter={() =>
+                                        (draggedOverRef.current = x as Status)
+                                    }
                                 >
-                                    {entryList
-                                        .filter((e) => e.status === x)
-                                        .map((entry) => (
-                                            <EntryCard
-                                                key={entry.id}
-                                                entry={entry}
-                                                onDragStart={() =>
-                                                    (draggedRef.current =
-                                                        entry.id)
-                                                }
-                                                onDragEnd={() => updateStatus()}
-                                            />
-                                        ))}
-                                    <Button
-                                        color="primary"
-                                        //@ts-ignore mapped type is the same, Todo: refactor to enum and use "x as Status"
-                                        onClick={() => addNewEntry(x)}
+                                    <h2>
+                                        {x.charAt(0).toUpperCase() + x.slice(1)}
+                                    </h2>
+                                    <Space
+                                        direction="vertical"
+                                        align="center"
+                                        style={{
+                                            border: "1px solid black",
+                                            padding: "12px",
+                                            borderRadius: "8px",
+                                        }}
                                     >
-                                        Add new
-                                    </Button>
+                                        {entryList
+                                            .filter((e) => e.status === x)
+                                            .map((entry) => (
+                                                <EntryCard
+                                                    key={entry.id}
+                                                    entry={entry}
+                                                    onDragStart={() =>
+                                                        (draggedRef.current =
+                                                            entry.id)
+                                                    }
+                                                    onDragEnd={() =>
+                                                        updateStatus()
+                                                    }
+                                                />
+                                            ))}
+                                        <Button
+                                            color="primary"
+                                            //@ts-ignore mapped type is the same, Todo: refactor to enum and use "x as Status"
+                                            onClick={() => addNewEntry(x)}
+                                        >
+                                            {t("Add new")}
+                                        </Button>
+                                    </Space>
                                 </Space>
-                            </Space>
-                        );
-                    })}
-                </>
-            )}
-        </Space>
+                            );
+                        })}
+                    </>
+                )}
+            </Space>
+            <Flex justify="center">
+                <LanguageToggle />
+            </Flex>
+        </>
     );
 });

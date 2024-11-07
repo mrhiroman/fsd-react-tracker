@@ -3,6 +3,7 @@ import { entryStore } from "entities/entry";
 import { updateEntry } from "features";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 
 export const DetailsPage = observer(() => {
@@ -22,6 +23,8 @@ export const DetailsPage = observer(() => {
         },
     } = entryStore;
 
+    const { t } = useTranslation();
+
     const { id } = useParams();
     const navigate = useNavigate();
 
@@ -35,8 +38,10 @@ export const DetailsPage = observer(() => {
 
     const deleteEntry = () => {
         Modal.confirm({
-            title: "Do you want to delete this entry?",
-            content: "This action is irreversible",
+            title: t("Do you want to delete this entry?"),
+            content: t("This action is irreversible"),
+            cancelText: t("Cancel"),
+            okText: t("Delete"),
             onOk() {
                 id && apiDeleteEntry(parseInt(id));
                 setTimeout(() => requireRefresh(), 300);
@@ -74,7 +79,7 @@ export const DetailsPage = observer(() => {
             style={{
                 width: "100vw",
                 display: "flex",
-                justifyContent: "start",
+                justifyContent: "center",
                 padding: "24px",
             }}
         >
@@ -83,21 +88,28 @@ export const DetailsPage = observer(() => {
             ) : (
                 <>
                     <Button type="primary" onClick={() => navigate("/")}>
-                        Go back
+                        {t("Go back")}
                     </Button>
-                    <Space direction="vertical" align="start">
+                    <Space
+                        direction="vertical"
+                        align="center"
+                        style={{ width: "calc(100vw - 48px)" }}
+                    >
                         <h1>{entry?.name}</h1>
                         <p>{entry?.description}</p>
+                        <Button type="primary" onClick={() => openEditModal()}>
+                            {t("Edit")}
+                        </Button>
+                        <Button type="primary" onClick={() => deleteEntry()}>
+                            {t("Delete")}
+                        </Button>
                     </Space>
-                    <Button type="primary" onClick={() => openEditModal()}>
-                        Edit
-                    </Button>
-                    <Button type="primary" onClick={() => deleteEntry()}>
-                        Delete
-                    </Button>
+
                     <Modal
-                        title="Edit entry"
+                        title={t("Edit entry")}
                         open={isModalOpen}
+                        cancelText={t("Cancel")}
+                        okText={t("Save")}
                         onOk={handleOk}
                         onCancel={handleCancel}
                     >
